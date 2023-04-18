@@ -5,6 +5,7 @@ import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import java.lang.IllegalArgumentException
 
 class MonoTest {
     val log = LoggerFactory.getLogger(MonoTest::class.java)
@@ -98,10 +99,75 @@ class MonoTest {
         )
 
         log.info("------------------")
+    }
 
-//        StepVerifier.create(mono)
-//            .expectNext("nico".uppercase())
-//            .verifyComplete()
+    @Test
+    fun monoDoOnError() {
+        val mono = Mono.error<Error>(IllegalArgumentException("Illegal argument"))
+            .doOnError{e -> log.error("Error message: {}",e.message)}
+            .log()
 
+        StepVerifier.create(mono)
+            .expectError(IllegalArgumentException::class.java)
+            .verify()
+
+        log.info("------------------")
+    }
+
+    @Test
+    fun monoDoOnError2() {
+        val mono = Mono.error<Error>(IllegalArgumentException("Illegal argument"))
+            .doOnError{e -> log.error("Error message: {}",e.message)}
+            .doOnNext{s -> log.info("Won't execute")}
+            .log()
+
+        StepVerifier.create(mono)
+            .expectError(IllegalArgumentException::class.java)
+            .verify()
+
+        log.info("------------------")
+    }
+
+    @Test
+    fun monoOnErrorResume() {
+        val name = "William Suane"
+        val error = Mono.error<Any>(IllegalArgumentException("Illegal argument exception"))
+            .onErrorResume { s: Throwable? ->
+                log.info("Inside On Error Resume")
+                Mono.just<String>(name)
+            }
+            .doOnError { e: Throwable ->
+                log.error(
+                    "Error message: {}",
+                    e.message
+                )
+            }
+            .log()
+
+        StepVerifier.create(error)
+            .expectNext(name)
+            .verifyComplete()
+    }
+
+    @Test
+    fun monoOnErrorReturn() {
+        val name = "William Suane"
+        val error = Mono.error<Any>(IllegalArgumentException("Illegal argument exception"))
+            .onErrorReturn("Empty")
+            .onErrorResume { s: Throwable? ->
+                log.info("Inside On Error Resume")
+                Mono.just<String>(name)
+            }
+            .doOnError { e: Throwable ->
+                log.error(
+                    "Error message: {}",
+                    e.message
+                )
+            }
+            .log()
+
+        StepVerifier.create(error)
+            .expectNext(name)
+            .verifyComplete()
     }
 }
