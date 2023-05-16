@@ -149,6 +149,22 @@ class FluxTest {
     }
 
     @Test
+    fun fluxSubscriberPrettyBackPressure() {
+        val fluxNumber = Flux.range(1,10)
+            .log()
+            .limitRate(3)
+
+
+        fluxNumber.subscribe{e -> log.info("Number: {}",e)}
+
+
+        log.info("-------------------------------------")
+        StepVerifier.create(fluxNumber)
+            .expectNext(1,2,3,4,5,6,7,8,9,10)
+            .verifyComplete()
+    }
+
+    @Test
     fun fluxSubscriberIntervalOne() {
         val interval = Flux.interval(Duration.ofMillis(100))
             .take(10)
@@ -157,5 +173,67 @@ class FluxTest {
         interval.subscribe{i -> log.info("Number: {}",i.toString())}
 
         Thread.sleep(3000)
+    }
+
+    @Test
+    fun fluxSubscriberIntervalTwo() {
+        StepVerifier.withVirtualTime{createInterval()}
+            .expectSubscription()
+            .expectNoEvent(Duration.ofHours(24))
+            .thenAwait(Duration.ofDays(1))
+            .expectNext(0L)
+            .thenAwait(Duration.ofDays(1))
+            .expectNext(1L)
+            .thenCancel()
+            .verify()
+    }
+
+    //ctrl + alt + m extract method no intelij
+    private fun createInterval(): Flux<Long> {
+        return Flux.interval(Duration.ofDays(1))
+            .log()
+    }
+    //ctrl alt v -> cria variavel
+    @Test
+    fun conncetableFlux(){
+        val connectableFlux = Flux.range(1, 10)
+            .log()
+            .delayElements(Duration.ofMillis(100))
+            .publish()
+
+//        connectableFlux.connect()
+
+//        log.info("Thread sleeping for 300ms")
+//        Thread.sleep(300)
+//
+//        connectableFlux.subscribe{e -> log.info(e.toString())}
+//
+//        log.info("Thread sleeping for 200ms")
+//        Thread.sleep(200)
+//
+//        connectableFlux.subscribe{e -> log.info(e.toString())}
+
+        StepVerifier
+            .create(connectableFlux)
+            .then(connectableFlux::connect)
+            .expectNext(1,2,3,4,5,6,7,8,9,10)
+            .expectComplete()
+            .verify()
+    }
+
+    @Test
+    fun conncetableFluxAutoConnect(){
+        val connectableFlux = Flux.range(1, 10)
+            .log()
+            .delayElements(Duration.ofMillis(100))
+            .publish()
+            .autoConnect(2)
+
+        StepVerifier
+            .create(connectableFlux)
+            .then(connectableFlux::subscribe)
+            .expectNext(1,2,3,4,5,6,7,8,9,10)
+            .expectComplete()
+            .verify()
     }
 }
