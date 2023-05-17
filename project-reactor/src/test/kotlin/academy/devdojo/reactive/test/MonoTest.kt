@@ -1,14 +1,41 @@
 package academy.devdojo.reactive.test
 
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
+import reactor.blockhound.BlockHound
+import reactor.blockhound.BlockingOperationError
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import reactor.test.StepVerifier
-import java.lang.IllegalArgumentException
+import java.util.concurrent.FutureTask
+import java.util.concurrent.TimeUnit
+
 
 class MonoTest {
     val log = LoggerFactory.getLogger(MonoTest::class.java)
+
+    @BeforeAll
+    fun setup(){
+        BlockHound.install()
+    }
+
+    @Test
+    fun blockHoundWorks() {
+        try {
+            val task: FutureTask<*> = FutureTask {
+                Thread.sleep(0)
+                ""
+            }
+            Schedulers.parallel().schedule(task)
+            task[10, TimeUnit.SECONDS]
+            Assertions.fail("should fail")
+        } catch (e: Exception) {
+            Assertions.assertTrue(e.cause is BlockingOperationError)
+        }
+    }
 
     @Test
     fun monoSubscriber() {
