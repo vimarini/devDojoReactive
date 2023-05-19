@@ -12,7 +12,7 @@ public class RandomValueProducer {
 
         return Flux.generate(sink -> {
             if (counter.get() > 0 ) {
-                int randomValue = random.nextInt(100);
+                int randomValue = random.nextInt((30-20)+1)+20;
                 sink.next(randomValue);
                 counter.decrementAndGet();
             } else {
