@@ -104,3 +104,115 @@ onErrorReturn: Substitui um erro por um valor padrão.
 onErrorResume: Substitui um erro por um fluxo de elementos alternativo.
 retry: Tenta novamente a operação quando ocorre um erro.
 Esses são apenas alguns dos operadores disponíveis no Reactor. Existem muitos outros operadores que podem ser usados para diversas finalidades, como transformar, filtrar, combinar e manipular fluxos de dados de maneiras sofisticadas. A escolha adequada e a combinação dos operadores permitem criar pipelines de processamento de dados reativos de forma expressiva e eficiente.
+
+Combining Publishers (combinando publicadores) refere-se a uma operação no Reactor que permite combinar os elementos emitidos por dois ou mais fluxos em um único fluxo. Essa operação é útil quando você precisa processar múltiplos fluxos de dados e obter um único fluxo combinado com base em determinadas regras ou lógica.
+
+Existem vários operadores disponíveis no Reactor para combinar publicadores, sendo os principais:
+
+1. `zip`: Combina elementos correspondentes de dois ou mais fluxos em pares ou tuplas. Ele aguarda que todos os fluxos tenham emitido um elemento antes de combinar os valores. Por exemplo:
+   ```java
+   Flux<Integer> flux1 = Flux.just(1, 2, 3);
+   Flux<String> flux2 = Flux.just("A", "B", "C");
+
+   Flux<Tuple2<Integer, String>> combined = Flux.zip(flux1, flux2);
+   ```
+
+2. `merge`: Combina múltiplos fluxos em um único fluxo, mesclando os elementos em ordem de emissão. Os elementos são combinados à medida que são emitidos por qualquer um dos fluxos. Por exemplo:
+   ```java
+   Flux<Integer> flux1 = Flux.just(1, 2, 3);
+   Flux<Integer> flux2 = Flux.just(4, 5, 6);
+
+   Flux<Integer> combined = Flux.merge(flux1, flux2);
+   ```
+
+3. `concat`: Concatena múltiplos fluxos em um único fluxo, emitindo os elementos em ordem sequencial. Cada fluxo é processado sequencialmente antes de passar para o próximo. Por exemplo:
+   ```java
+   Flux<Integer> flux1 = Flux.just(1, 2, 3);
+   Flux<Integer> flux2 = Flux.just(4, 5, 6);
+
+   Flux<Integer> combined = Flux.concat(flux1, flux2);
+   ```
+
+4. `combineLatest`: Combina os elementos mais recentes de dois ou mais fluxos em um fluxo combinado. A cada vez que um fluxo emite um novo elemento, o fluxo combinado é atualizado com os elementos mais recentes de todos os fluxos. Por exemplo:
+   ```java
+   Flux<Integer> flux1 = Flux.just(1, 2, 3);
+   Flux<Integer> flux2 = Flux.just(4, 5, 6);
+
+   Flux<Tuple2<Integer, Integer>> combined = Flux.combineLatest(flux1, flux2, Tuple2::of);
+   ```
+
+Esses são apenas alguns dos operadores disponíveis para combinar publicadores no Reactor. Eles fornecem maneiras flexíveis de processar e combinar elementos de fluxos diferentes com base em suas necessidades. Ao combinar publicadores, você pode criar pipelines de processamento de dados mais avançados e realizar operações complexas em fluxos de dados reativos.
+
+
+1. Exemplo usando `zip`:
+```java
+Flux<Integer> flux1 = Flux.just(1, 2, 3);
+Flux<String> flux2 = Flux.just("A", "B", "C");
+
+Flux<Tuple2<Integer, String>> combined = Flux.zip(flux1, flux2);
+
+combined.subscribe(System.out::println);
+```
+Output:
+```
+(1, A)
+(2, B)
+(3, C)
+```
+
+2. Exemplo usando `merge`:
+```java
+Flux<Integer> flux1 = Flux.just(1, 2, 3);
+Flux<Integer> flux2 = Flux.just(4, 5, 6);
+
+Flux<Integer> combined = Flux.merge(flux1, flux2);
+
+combined.subscribe(System.out::println);
+```
+Output:
+```
+1
+2
+3
+4
+5
+6
+```
+
+3. Exemplo usando `concat`:
+```java
+Flux<Integer> flux1 = Flux.just(1, 2, 3);
+Flux<Integer> flux2 = Flux.just(4, 5, 6);
+
+Flux<Integer> combined = Flux.concat(flux1, flux2);
+
+combined.subscribe(System.out::println);
+```
+Output:
+```
+1
+2
+3
+4
+5
+6
+```
+
+4. Exemplo usando `combineLatest`:
+```java
+Flux<Integer> flux1 = Flux.just(1, 2, 3);
+Flux<Integer> flux2 = Flux.just(4, 5, 6);
+
+Flux<Tuple2<Integer, Integer>> combined = Flux.combineLatest(flux1, flux2, Tuple2::of);
+
+combined.subscribe(System.out::println);
+```
+Output:
+```
+(3, 4)
+(3, 5)
+(3, 6)
+```
+
+Lembrando que esses são apenas exemplos básicos para ilustrar o comportamento dos operadores de combinação de publicadores no Reactor. Os outputs podem variar dependendo dos fluxos e valores fornecidos.
+
