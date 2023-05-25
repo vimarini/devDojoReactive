@@ -216,3 +216,8 @@ Output:
 
 Lembrando que esses são apenas exemplos básicos para ilustrar o comportamento dos operadores de combinação de publicadores no Reactor. Os outputs podem variar dependendo dos fluxos e valores fornecidos.
 
+UC-995a3100-39fb-46db-9678-f682aa1e6acb
+
+https://grupouol.udemy.com/certificate/UC-995a3100-39fb-46db-9678-f682aa1e6acb/
+
+This certificate above verifies that Vinícius Marini Costa e Oliveira successfully completed the course Java Reactive Programming [ From Scratch ] on 05/25/2023 as taught by Vinoth Selvaraj on Udemy. The certificate indicates the entire course was completed as validated by the student. The course duration represents the total video hours of the course at time of most recent completion.
